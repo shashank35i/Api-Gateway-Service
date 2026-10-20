@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: api-gateway-service
+  grpc:
+    server:
+      port: 9090
