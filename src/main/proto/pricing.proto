@@ -1,4 +1,4 @@
-syntax = "proto3";
+syntax ="proto3";
 
 package goon.pricing;
 
@@ -6,10 +6,11 @@ option java_multiple_files = true;
 option java_package = "com.goon.grpc.pricing";
 option java_outer_classname = "PricingProto";
 
-service PricingService {
-  rpc GetFareQuote(FareQuoteRequest)
-      returns (FareQuoteResponse);
+service PricingService{
+  rpc getFareQuote(FareQuoteRequest)
+    returns (FareQuoteResponse);
 }
+
 
 message FareQuoteRequest {
   string customerId = 1;
