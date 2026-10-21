@@ -8,7 +8,7 @@ import org.springframework.grpc.client.ImportGrpcClients;
 @SpringBootApplication
 @ImportGrpcClients(
 		target="pricing",
-		types = PricingServiceGrpc.class
+		types = PricingServiceGrpc.PricingServiceBlockingStub.class
 	)
 
 public class ApiGatewayServiceApplication {
