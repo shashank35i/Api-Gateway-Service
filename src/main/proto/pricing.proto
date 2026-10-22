@@ -7,7 +7,7 @@ option java_package = "com.goon.grpc.pricing";
 option java_outer_classname = "PricingProto";
 
 service PricingService{
-  rpc getFareQuote(FareQuoteRequest)
+  rpc GetFareQuote(FareQuoteRequest)
     returns (FareQuoteResponse);
 }
 

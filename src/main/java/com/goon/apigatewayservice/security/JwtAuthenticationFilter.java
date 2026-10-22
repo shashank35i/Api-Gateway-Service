@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException
     {
-
+        System.out.println("JWT FILTER EXECUTED");
         String header = request.getHeader("Authorization");
         if(header==null || !header.startsWith("Bearer ")){
             filterChain.doFilter(request,response);
@@ -57,6 +57,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .parseSignedClaims(token)
                 .getPayload();
 
+
+            System.out.println("Subject: " + claims.getSubject());
+            System.out.println("Role: " + claims.get("role"));
+            System.out.println("Issuer: " + claims.getIssuer());
         if(!"goon-auth".equals(claims.getIssuer()) ||
                 claims.getExpiration()==null){          //some jwts can accept no expiration . so its valid to be null at jwt verification using jwts.parser . so we checking seperately
             throw new JwtException("Invalid Token");  //for backend . but in frontend it can give internal server error , so we use catch block to beautify it  .
@@ -82,9 +86,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
         }
-        catch (JwtException | IllegalArgumentException e){
+        catch (JwtException | IllegalArgumentException e) {
+            System.out.println("JWT ERROR: " + e.getMessage());
             SecurityContextHolder.clearContext();
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"Invalid Token");
+            response.sendError(401, "Invalid Token");
             return;
         }
 

@@ -4,6 +4,19 @@ server:
 spring:
   application:
     name: api-gateway-service
+  security:
+    oauth2:
+      client:
+        registration:
+          goon-internal:
+            provider: goon-keycloak
+            client-id: ${GOON_SERVICE_CLIENT_ID:api-gateway}
+            client-secret: ${GOON_SERVICE_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+            scope: pricing.quote
+        provider:
+          goon-keycloak:
+            issuer-uri: ${GOON_KEYCLOAK_ISSUER}
   grpc:
     client:
       channel:
