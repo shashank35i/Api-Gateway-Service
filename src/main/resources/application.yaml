@@ -13,7 +13,8 @@ spring:
             client-id: ${GOON_SERVICE_CLIENT_ID:api-gateway}
             client-secret: ${GOON_SERVICE_CLIENT_SECRET}
             authorization-grant-type: client_credentials
-            scope: pricing.quote
+            scope:
+            - pricing.quote
         provider:
           goon-keycloak:
             issuer-uri: ${GOON_KEYCLOAK_ISSUER}
@@ -39,3 +40,6 @@ spring:
 
 app:
   jwt-secret-key: 7y9V/kZ7P5xWb2NmTF9uK3R6VzRyUXBTMTR2WGNBbUo=
+
+
+GOON_KEYCLOAK_ISSUER : fajkfhnaf
