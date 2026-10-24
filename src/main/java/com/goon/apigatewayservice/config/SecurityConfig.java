@@ -36,7 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**", "/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/fares/estimate")
                         .hasRole("CUSTOMER")
-                        .requestMatchers("/driver/**").hasRole("DRIVER")
+                        .requestMatchers("/driver/**", "/offers/**").hasRole("DRIVER")
                         .requestMatchers("/customer/**").hasRole("CUSTOMER")
                         .anyRequest().authenticated()
                 )

@@ -26,5 +26,17 @@ spring:
             enabled: false
 
 
+  spring:
+    cloud:
+      gateway:
+        server:
+          webflux:
+            routes:
+              - id: driver-offers
+                uri: http://localhost:8082
+                predicates:
+                  - Path=/offers/**
+
+
 app:
   jwt-secret-key: 7y9V/kZ7P5xWb2NmTF9uK3R6VzRyUXBTMTR2WGNBbUo=
