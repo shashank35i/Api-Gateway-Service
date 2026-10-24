@@ -26,16 +26,15 @@ spring:
             enabled: false
 
 
-  spring:
-    cloud:
-      gateway:
-        server:
-          webflux:
-            routes:
-              - id: driver-offers
-                uri: http://localhost:8082
-                predicates:
-                  - Path=/offers/**
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: driver-offers
+              uri: http://localhost:8082
+              predicates:
+                - Path=/offers/**
 
 
 app:
