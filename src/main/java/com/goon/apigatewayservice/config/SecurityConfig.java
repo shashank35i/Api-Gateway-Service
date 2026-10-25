@@ -1,6 +1,7 @@
 package com.goon.apigatewayservice.config;
 
 import com.goon.apigatewayservice.security.JwtAuthenticationFilter;
+import com.goon.apigatewayservice.security.UserIdentityFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final UserIdentityFilter userIdentityFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -31,15 +33,23 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS))
+                                SessionCreationPolicy.STATELESS
+                        ))
                 .exceptionHandling(errors -> errors
                         .authenticationEntryPoint((req, res, ex) ->
-                                res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                                res.sendError(
+                                        HttpServletResponse.SC_UNAUTHORIZED
+                                ))
                         .accessDeniedHandler((req, res, ex) ->
-                                res.sendError(HttpServletResponse.SC_FORBIDDEN)))
+                                res.sendError(
+                                        HttpServletResponse.SC_FORBIDDEN
+                                )))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/**", "/actuator/health").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**")
+                        .permitAll()
+
+                        .requestMatchers("/auth/**", "/actuator/health")
+                        .permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/fares/estimate")
                         .hasRole("CUSTOMER")
@@ -47,20 +57,28 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/ingestion")
                         .hasRole("DRIVER")
 
-                        .requestMatchers("/api/driver/**", "/driver/**", "/offers/**")
-                        .hasRole("DRIVER")
+                        .requestMatchers(
+                                "/api/driver/**",
+                                "/driver/**",
+                                "/offers/**"
+                        ).hasRole("DRIVER")
 
-                        .requestMatchers("/api/customer/**", "/customer/**")
-                        .hasRole("CUSTOMER")
-
-                        .requestMatchers("/rides/**")
-                        .hasRole("CUSTOMER")
+                        .requestMatchers(
+                                "/api/customer/**",
+                                "/customer/**",
+                                "/rides/**"
+                        ).hasRole("CUSTOMER")
 
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
                         jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class)
+                        UsernamePasswordAuthenticationFilter.class
+                )
+                .addFilterAfter(
+                        userIdentityFilter,
+                        JwtAuthenticationFilter.class
+                )
                 .build();
     }
 
@@ -84,10 +102,7 @@ public class SecurityConfig {
                 "Idempotency-Key"
         ));
 
-        config.setExposedHeaders(List.of(
-                "Location"
-        ));
-
+        config.setExposedHeaders(List.of("Location"));
         config.setAllowCredentials(false);
         config.setMaxAge(3600L);
 
