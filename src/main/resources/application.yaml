@@ -7,7 +7,7 @@ spring:
   security:
     oauth2:
       client:
-        registration:
+        registration:                     #caller
           goon-internal:
             provider: goon-keycloak
             client-id: ${GOON_SERVICE_CLIENT_ID:api-gateway}
@@ -15,9 +15,9 @@ spring:
             authorization-grant-type: client_credentials
             scope:
             - pricing.quote
-        provider:
+        provider:     #token endpoint for jwt token
           goon-keycloak:
-            issuer-uri: ${GOON_KEYCLOAK_ISSUER}
+            issuer-uri: http://localhost:8090/realms/goon-internal-auth
   grpc:
     client:
       channel:
@@ -42,4 +42,4 @@ app:
   jwt-secret-key: 7y9V/kZ7P5xWb2NmTF9uK3R6VzRyUXBTMTR2WGNBbUo=
 
 
-GOON_KEYCLOAK_ISSUER : fajkfhnaf
+GOON_KEYCLOAK_ISSUER: http://localhost:8090/realms/goon-internal-auth
