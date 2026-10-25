@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-gateway-server-webmvc</artifactId>
-			<version>5.0.0</version>
+			<version>5.0.2</version>
 		</dependency>
 
 		<dependency>
