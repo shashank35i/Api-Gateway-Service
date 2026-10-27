@@ -25,13 +25,15 @@ public class PricingClientService {
                     .withDeadlineAfter(10, TimeUnit.SECONDS)
                     .getFareQuote(request);
         } catch (StatusRuntimeException e) {
-            if (e.getStatus().getCode() == Status.Code.DEADLINE_EXCEEDED) {
-                throw new ResponseStatusException(
-                        HttpStatus.GATEWAY_TIMEOUT,
-                        "Pricing service timed out"
-                );
-            }
-            throw e;
+            HttpStatus status = switch (e.getStatus().getCode()) {
+                case DEADLINE_EXCEEDED -> HttpStatus.GATEWAY_TIMEOUT;
+                case UNAVAILABLE -> HttpStatus.SERVICE_UNAVAILABLE;
+                case UNAUTHENTICATED -> HttpStatus.BAD_GATEWAY;
+                case PERMISSION_DENIED -> HttpStatus.BAD_GATEWAY;
+                default -> HttpStatus.BAD_GATEWAY;
+            };
+
+            throw new ResponseStatusException(status, "Pricing service request failed", e);
         }
     }
 }

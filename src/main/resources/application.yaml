@@ -15,6 +15,38 @@ spring:
             authorization-grant-type: client_credentials
             scope:
             - pricing.quote
+          goon-customer:
+            provider: goon-keycloak
+            client-id: goon-services
+            client-secret: G2Wc2qAtPASfbgGj7kdMEo8w8K4ZVaq6idKGlCqINeQW8BpWprYmltTlI9SqDIWIBe4xRdogXo2nVDPEiG2Flm
+            authorization-grant-type: client_credentials
+            scope:
+              - customer.access
+            # Configure the audience mapper on this Keycloak scope: customer-service
+          goon-driver:
+            provider: goon-keycloak
+            client-id: goon-services
+            client-secret: G2Wc2qAtPASfbgGj7kdMEo8w8K4ZVaq6idKGlCqINeQW8BpWprYmltTlI9SqDIWIBe4xRdogXo2nVDPEiG2Flm
+            authorization-grant-type: client_credentials
+            scope:
+              - driver.access
+            # Configure the audience mapper on this Keycloak scope: driver-service
+          goon-rides:
+            provider: goon-keycloak
+            client-id: goon-services
+            client-secret: G2Wc2qAtPASfbgGj7kdMEo8w8K4ZVaq6idKGlCqINeQW8BpWprYmltTlI9SqDIWIBe4xRdogXo2nVDPEiG2Flm
+            authorization-grant-type: client_credentials
+            scope:
+              - rides.create
+            # Configure the audience mapper on this Keycloak scope: ride-service
+          goon-location-ingestion:
+            provider: goon-keycloak
+            client-id: goon-services
+            client-secret: G2Wc2qAtPASfbgGj7kdMEo8w8K4ZVaq6idKGlCqINeQW8BpWprYmltTlI9SqDIWIBe4xRdogXo2nVDPEiG2Flm
+            authorization-grant-type: client_credentials
+            scope:
+              - location.ingest
+            # Configure the audience mapper on this Keycloak scope: location-ingestion-service
         provider:     #token endpoint for jwt token
           goon-keycloak:
             issuer-uri: http://localhost:8090/realms/goon-internal-auth
@@ -36,21 +68,29 @@ spring:
               uri: http://localhost:8088
               predicates:
                 - Path=/auth/customer/**,/customer/**
+              filters:
+                - TokenRelay=goon-customer
 
             - id: driver-service
               uri: http://localhost:8084
               predicates:
                 - Path=/auth/driver/**,/driver/**,/api/driver/**,/offers/**
+              filters:
+                - TokenRelay=goon-driver
 
             - id: ride-service
               uri: http://localhost:8083
               predicates:
                 - Path=/rides/**
+              filters:
+                - TokenRelay=goon-rides
 
             - id: location-ingestion-service
               uri: http://localhost:8080
               predicates:
                 - Path=/api/ingestion
+              filters:
+                - TokenRelay=goon-location-ingestion
 
 
 app:
