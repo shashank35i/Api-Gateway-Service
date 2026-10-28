@@ -47,6 +47,14 @@ spring:
             scope:
               - location.ingest
             # Configure the audience mapper on this Keycloak scope: location-ingestion-service
+          goon-payments:
+            provider: goon-keycloak
+            client-id: goon-services
+            client-secret: ${spring.security.oauth2.client.registration.goon-internal.client-secret}
+            authorization-grant-type: client_credentials
+            scope:
+              - payments.checkout
+            # Keycloak audience mapper on payments.checkout: payment-service
         provider:     #token endpoint for jwt token
           goon-keycloak:
             issuer-uri: http://localhost:8090/realms/goon-internal-auth
@@ -96,6 +104,23 @@ spring:
               uri: http://localhost:8085
               predicates:
                 - Path=/api/register_fcm_token
+
+            - id: payment-service
+              uri: http://localhost:8089
+              predicates:
+                - Path=/payments/**
+              filters:
+                - TokenRelay=goon-payments
+
+            - id: payment-webhook
+              uri: http://localhost:8089
+              predicates:
+                - Path=/webhooks/razorpay
+
+            - id: payment-checkout-page
+              uri: http://localhost:8089
+              predicates:
+                - Path=/payment-checkout.html
 
 app:
   jwt-secret-key: 7y9V/kZ7P5xWb2NmTF9uK3R6VzRyUXBTMTR2WGNBbUo=

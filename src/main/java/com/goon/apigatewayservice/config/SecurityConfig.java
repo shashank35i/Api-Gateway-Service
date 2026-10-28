@@ -48,6 +48,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**")
                         .permitAll()
 
+                        .requestMatchers(HttpMethod.POST, "/webhooks/razorpay").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/payment-checkout.html").permitAll()
+                        .requestMatchers("/payments/**").hasRole("CUSTOMER")
+
                         .requestMatchers("/auth/**", "/actuator/health")
                         .permitAll()
 
