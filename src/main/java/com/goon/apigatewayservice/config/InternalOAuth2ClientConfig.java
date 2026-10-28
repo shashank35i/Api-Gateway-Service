@@ -12,9 +12,20 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 
 import java.util.function.Supplier;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.time.Instant;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
 public class InternalOAuth2ClientConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(InternalOAuth2ClientConfig.class);
+
+    private static final String SERVICE_PRINCIPAL = "api-gateway";
+    private final Map<String, Object> authorizationLocks = new ConcurrentHashMap<>();
 
     @Bean
     OAuth2AuthorizedClientManager internalAuthorizedClientManager(
@@ -25,13 +36,35 @@ public class InternalOAuth2ClientConfig {
         manager.setAuthorizedClientProvider(OAuth2AuthorizedClientProviderBuilder.builder()
                 .clientCredentials()
                 .build());
-        return manager;
+
+        // TokenRelay calls this manager with the incoming HTTP user's principal.
+        // Client-credentials tokens belong to the gateway service, so normalize
+        // that principal and serialize cache misses independently per registration.
+        return request -> {
+            String registrationId = request.getClientRegistrationId();
+            Object lock = authorizationLocks.computeIfAbsent(registrationId, ignored -> new Object());
+            synchronized (lock) {
+                var previous = authorizedClients.loadAuthorizedClient(registrationId, SERVICE_PRINCIPAL);
+                var serviceRequest = org.springframework.security.oauth2.client.OAuth2AuthorizeRequest
+                        .withClientRegistrationId(registrationId)
+                        .principal(SERVICE_PRINCIPAL)
+                        .attributes(attributes -> attributes.putAll(request.getAttributes()))
+                        .build();
+                var authorized = manager.authorize(serviceRequest);
+                OAuth2AccessToken before = previous == null ? null : previous.getAccessToken();
+                OAuth2AccessToken after = authorized == null ? null : authorized.getAccessToken();
+                if (after != null && (before == null || !after.getIssuedAt().equals(before.getIssuedAt()))) {
+                    log.info("TOKEN_FETCH registrationId={} principal={}", registrationId, SERVICE_PRINCIPAL);
+                }
+                return authorized;
+            }
+        };
     }
 
     @Bean
     GrpcChannelBuilderCustomizer<?> pricingServiceBearerToken(
             InternalServiceTokenProvider tokenProvider) {
-        Supplier<String> accessToken = tokenProvider::getAccessToken;
+        Supplier<String> accessToken = () -> tokenProvider.getAccessToken("goon-internal");
         return GrpcChannelBuilderCustomizer.matching("pricing", builder ->
                 builder.intercept(new BearerTokenAuthenticationInterceptor(accessToken)));
     }

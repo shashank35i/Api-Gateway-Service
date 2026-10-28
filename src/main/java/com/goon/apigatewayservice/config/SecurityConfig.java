@@ -3,6 +3,7 @@ package com.goon.apigatewayservice.config;
 import com.goon.apigatewayservice.security.JwtAuthenticationFilter;
 import com.goon.apigatewayservice.security.UserIdentityFilter;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +46,7 @@ public class SecurityConfig {
                                         HttpServletResponse.SC_FORBIDDEN
                                 )))
                 .authorizeHttpRequests(auth -> auth
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**")
                         .permitAll()
 
