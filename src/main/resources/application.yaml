@@ -92,6 +92,10 @@ spring:
               filters:
                 - TokenRelay=goon-location-ingestion
 
+            - id: notification-service
+              uri: http://localhost:8085
+              predicates:
+                - Path=/api/register_fcm_token
 
 app:
   jwt-secret-key: 7y9V/kZ7P5xWb2NmTF9uK3R6VzRyUXBTMTR2WGNBbUo=
