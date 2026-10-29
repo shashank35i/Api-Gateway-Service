@@ -28,6 +28,11 @@ public class InternalOAuth2ClientConfig {
     private final Map<String, Object> authorizationLocks = new ConcurrentHashMap<>();
 
     @Bean
+    org.springframework.cloud.gateway.server.mvc.filter.FilterSupplier serviceTokenRelayFilterSupplier() {
+        return new ServiceTokenRelayFilterFunctions.FilterSupplier();
+    }
+
+    @Bean
     OAuth2AuthorizedClientManager internalAuthorizedClientManager(
             ClientRegistrationRepository registrations,
             OAuth2AuthorizedClientService authorizedClients) {
